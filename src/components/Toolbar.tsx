@@ -3,8 +3,8 @@ import React from 'react';
 import { Plus } from 'lucide-react';
 
 interface ToolbarProps {
-  selectedTool: 'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers' | null;
-  onToolSelect: (tool: 'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers' | null) => void;
+  selectedTool: 'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers' | 'text' | null;
+  onToolSelect: (tool: 'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers' | 'text' | null) => void;
 }
 
 export const Toolbar = ({ selectedTool, onToolSelect }: ToolbarProps) => {
@@ -13,7 +13,8 @@ export const Toolbar = ({ selectedTool, onToolSelect }: ToolbarProps) => {
     { id: 'photobooth', label: 'Photobooth', icon: '📸', description: 'Add 4-photo strip' },
     { id: 'vinyl', label: 'Vinyl', icon: '🎵', description: 'Add music player' },
     { id: 'letter', label: 'Letter', icon: '💌', description: 'Add letter template' },
-    { id: 'stickers', label: 'Stickers', icon: '✨', description: 'Add sticker collection' }
+    { id: 'stickers', label: 'Stickers', icon: '✨', description: 'Add sticker collection' },
+    { id: 'text', label: 'Text', icon: '📝', description: 'Add custom text' }
   ] as const;
 
   return (

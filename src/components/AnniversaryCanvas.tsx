@@ -6,12 +6,12 @@ import { LetterTemplate } from './LetterTemplate';
 import { PhotoboothTemplate } from './PhotoboothTemplate';
 import { StickerCollection } from './StickerCollection';
 import { Sticker } from './Sticker';
+import { TextTool } from './TextTool';
 import { Toolbar } from './Toolbar';
-import { Plus } from 'lucide-react';
 
 export interface CanvasItem {
   id: string;
-  type: 'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers' | 'sticker';
+  type: 'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers' | 'sticker' | 'text';
   x: number;
   y: number;
   data?: any;
@@ -19,18 +19,21 @@ export interface CanvasItem {
 
 export const AnniversaryCanvas = () => {
   const [items, setItems] = useState<CanvasItem[]>([]);
-  const [selectedTool, setSelectedTool] = useState<'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers' | null>(null);
+  const [selectedTool, setSelectedTool] = useState<'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers' | 'text' | null>(null);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const addItem = useCallback((type: 'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers', x: number, y: number) => {
+  const addItem = useCallback((type: 'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers' | 'text', x: number, y: number) => {
     const newItem: CanvasItem = {
       id: `${type}-${Date.now()}`,
       type,
       x,
       y,
-      data: type === 'letter' ? { template: 'vintage', content: '' } : {}
+      data: type === 'letter' ? { template: 'vintage', content: '' } : 
+            type === 'text' ? { text: 'Add your text here...', font: 'Arial', color: '#000000', size: 16 } :
+            type === 'polaroid' ? { size: 'medium' } :
+            type === 'photobooth' ? { size: 'medium' } : {}
     };
     setItems(prev => [...prev, newItem]);
   }, []);
@@ -60,7 +63,6 @@ export const AnniversaryCanvas = () => {
   }, [selectedTool, addItem]);
 
   const handleStickerSelect = useCallback((stickerContent: string) => {
-    // Add sticker at a random position near the sticker collection
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
 
@@ -150,6 +152,8 @@ export const AnniversaryCanvas = () => {
                     onImageUpload={(imageData) => updateItemData(item.id, { image: imageData })}
                     onDelete={() => deleteItem(item.id)}
                     imageData={item.data?.image}
+                    size={item.data?.size || 'medium'}
+                    onSizeChange={(size) => updateItemData(item.id, { size })}
                   />
                 </div>
               );
@@ -162,6 +166,8 @@ export const AnniversaryCanvas = () => {
                 >
                   <PhotoboothTemplate 
                     onDelete={() => deleteItem(item.id)}
+                    size={item.data?.size || 'medium'}
+                    onSizeChange={(size) => updateItemData(item.id, { size })}
                   />
                 </div>
               );
@@ -188,6 +194,7 @@ export const AnniversaryCanvas = () => {
                     template={item.data?.template || 'vintage'}
                     content={item.data?.content || ''}
                     onContentChange={(content) => updateItemData(item.id, { content })}
+                    onTemplateChange={(template) => updateItemData(item.id, { template })}
                     onDelete={() => deleteItem(item.id)}
                   />
                 </div>
@@ -215,6 +222,22 @@ export const AnniversaryCanvas = () => {
                   <Sticker 
                     content={item.data?.content || '❤️'}
                     onDelete={() => deleteItem(item.id)}
+                  />
+                </div>
+              );
+            case 'text':
+              return (
+                <div 
+                  key={item.id} 
+                  style={style}
+                  onMouseDown={(e) => handleMouseDown(e, item.id)}
+                >
+                  <TextTool
+                    onDelete={() => deleteItem(item.id)}
+                    initialText={item.data?.text}
+                    initialFont={item.data?.font}
+                    initialColor={item.data?.color}
+                    initialSize={item.data?.size}
                   />
                 </div>
               );

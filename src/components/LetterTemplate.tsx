@@ -1,35 +1,73 @@
-
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { LetterTemplateSelector } from './LetterTemplateSelector';
 
 interface LetterTemplateProps {
   template: string;
   content: string;
   onContentChange: (content: string) => void;
+  onTemplateChange?: (template: string) => void;
   onDelete: () => void;
 }
 
-export const LetterTemplate = ({ template, content, onContentChange, onDelete }: LetterTemplateProps) => {
+export const LetterTemplate = ({ template, content, onContentChange, onTemplateChange, onDelete }: LetterTemplateProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const templates = {
     vintage: {
-      bgColor: 'bg-yellow-50',
-      borderColor: 'border-amber-300',
+      bgStyle: {
+        background: `
+          radial-gradient(circle at 20% 80%, rgba(139,115,85,0.1) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(160,82,45,0.08) 0%, transparent 50%),
+          radial-gradient(circle at 40% 40%, rgba(205,133,63,0.05) 0%, transparent 70%),
+          linear-gradient(45deg, #f5f5dc 0%, #faf0e6 25%, #f5f5dc 50%, #fdf5e6 75%, #f5f5dc 100%)
+        `
+      },
+      headerColor: 'text-amber-800',
       textColor: 'text-amber-900',
-      pattern: 'vintage-handwritten'
+      borderColor: 'via-amber-400',
+      title: '💕 Mon Amour 💕',
+      decoration: '💌'
     },
     romantic: {
-      bgColor: 'bg-rose-50',
-      borderColor: 'border-rose-200',
-      textColor: 'text-rose-900',
-      pattern: 'romantic-hearts'
+      bgStyle: {
+        background: `
+          radial-gradient(circle at 30% 70%, rgba(255,192,203,0.15) 0%, transparent 50%),
+          radial-gradient(circle at 70% 30%, rgba(255,182,193,0.12) 0%, transparent 50%),
+          linear-gradient(135deg, #fdf2f8 0%, #fce7f3 25%, #fbcfe8 50%, #f9a8d4 75%, #fdf2f8 100%)
+        `
+      },
+      headerColor: 'text-pink-800',
+      textColor: 'text-pink-900',
+      borderColor: 'via-pink-400',
+      title: '💖 My Beloved 💖',
+      decoration: '💕'
     },
     classic: {
-      bgColor: 'bg-gray-50',
-      borderColor: 'border-gray-200',
+      bgStyle: {
+        background: `
+          linear-gradient(145deg, #ffffff 0%, #f8fafc 25%, #f1f5f9 50%, #e2e8f0 75%, #ffffff 100%)
+        `
+      },
+      headerColor: 'text-gray-800',
       textColor: 'text-gray-900',
-      pattern: 'classic-simple'
+      borderColor: 'via-gray-400',
+      title: '♡ Dear You ♡',
+      decoration: '✉️'
+    },
+    elegant: {
+      bgStyle: {
+        background: `
+          radial-gradient(circle at 25% 75%, rgba(139,69,19,0.08) 0%, transparent 50%),
+          radial-gradient(circle at 75% 25%, rgba(160,82,45,0.06) 0%, transparent 50%),
+          linear-gradient(160deg, #f7f3e9 0%, #f5f1e8 25%, #f0ebe2 50%, #ede7d9 75%, #f7f3e9 100%)
+        `
+      },
+      headerColor: 'text-amber-900',
+      textColor: 'text-amber-900',
+      borderColor: 'via-amber-500',
+      title: '✨ My Darling ✨',
+      decoration: '🌹'
     }
   };
 
@@ -41,20 +79,12 @@ export const LetterTemplate = ({ template, content, onContentChange, onDelete }:
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Vintage Letter Paper */}
-      <div className={`w-80 h-96 relative shadow-2xl transform rotate-1`}>
-        {/* Main paper background with aged texture */}
+      {/* Letter Paper */}
+      <div className="w-80 h-96 relative shadow-2xl transform rotate-1">
+        {/* Main paper background */}
         <div 
           className="w-full h-full relative"
-          style={{
-            background: `
-              radial-gradient(circle at 20% 80%, rgba(139,115,85,0.1) 0%, transparent 50%),
-              radial-gradient(circle at 80% 20%, rgba(160,82,45,0.08) 0%, transparent 50%),
-              radial-gradient(circle at 40% 40%, rgba(205,133,63,0.05) 0%, transparent 70%),
-              linear-gradient(45deg, #f5f5dc 0%, #faf0e6 25%, #f5f5dc 50%, #fdf5e6 75%, #f5f5dc 100%)
-            `,
-            backgroundSize: '100% 100%, 80% 80%, 60% 60%, 100% 100%'
-          }}
+          style={currentTemplate.bgStyle}
         >
           {/* Handwritten text border - left side */}
           <div className="absolute left-2 top-4 bottom-4 w-8 overflow-hidden">
@@ -136,18 +166,18 @@ export const LetterTemplate = ({ template, content, onContentChange, onDelete }:
           <div className="absolute inset-0 px-12 py-16">
             {/* Decorative header */}
             <div className="text-center mb-6">
-              <div className="text-lg font-bold text-amber-800" style={{ fontFamily: 'Dancing Script, cursive' }}>
-                💕 Mon Amour 💕
+              <div className={`text-lg font-bold ${currentTemplate.headerColor}`} style={{ fontFamily: 'Dancing Script, cursive' }}>
+                {currentTemplate.title}
               </div>
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-30 mt-2"></div>
+              <div className={`w-full h-px bg-gradient-to-r from-transparent ${currentTemplate.borderColor} to-transparent opacity-30 mt-2`}></div>
             </div>
 
             {/* Letter content */}
             <textarea
               value={content}
               onChange={(e) => onContentChange(e.target.value)}
-              placeholder="Ma chérie,&#10;&#10;Write your heart here...&#10;&#10;Avec tout mon amour,&#10;Your beloved"
-              className="w-full h-56 bg-transparent text-amber-900 text-sm resize-none border-none outline-none leading-relaxed"
+              placeholder="Write your heart here..."
+              className={`w-full h-56 bg-transparent ${currentTemplate.textColor} text-sm resize-none border-none outline-none leading-relaxed`}
               style={{ 
                 fontFamily: 'Dancing Script, cursive',
                 fontSize: '14px'
@@ -156,7 +186,7 @@ export const LetterTemplate = ({ template, content, onContentChange, onDelete }:
 
             {/* Decorative footer */}
             <div className="absolute bottom-6 right-8">
-              <div className="text-xl">💌</div>
+              <div className="text-xl">{currentTemplate.decoration}</div>
             </div>
           </div>
 
@@ -183,18 +213,12 @@ export const LetterTemplate = ({ template, content, onContentChange, onDelete }:
       </div>
 
       {/* Template selector */}
-      <div className="mt-4 flex justify-center gap-2">
-        {Object.keys(templates).map(templateKey => (
-          <button
-            key={templateKey}
-            onClick={() => {}} // Template switching can be added later
-            className={`w-4 h-4 rounded-full border-2 border-amber-400 ${
-              templateKey === template ? 'bg-amber-400' : 'bg-white'
-            } hover:scale-110 transition-transform`}
-            title={`${templateKey} template`}
-          />
-        ))}
-      </div>
+      {onTemplateChange && (
+        <LetterTemplateSelector 
+          currentTemplate={template}
+          onTemplateChange={onTemplateChange}
+        />
+      )}
 
       {/* Delete button */}
       {isHovered && (

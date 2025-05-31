@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Play, Pause, SkipBack, SkipForward, X, Volume2 } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, X, Volume2, Edit3 } from 'lucide-react';
 
 interface VinylPlayerProps {
   onDelete: () => void;
@@ -10,6 +10,8 @@ export const VinylPlayer = ({ onDelete }: VinylPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [currentSong, setCurrentSong] = useState('Our Song');
+  const [customText, setCustomText] = useState('Our Special Playlist');
+  const [isEditingText, setIsEditingText] = useState(false);
   const [volume, setVolume] = useState(75);
 
   const songs = [
@@ -118,15 +120,38 @@ export const VinylPlayer = ({ onDelete }: VinylPlayerProps) => {
         <select 
           value={currentSong}
           onChange={(e) => setCurrentSong(e.target.value)}
-          className="w-full text-sm bg-white border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
+          className="w-full text-sm bg-white border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-400 mb-3"
         >
           {songs.map(song => (
             <option key={song} value={song}>{song}</option>
           ))}
         </select>
 
+        {/* Custom Text */}
+        <div className="mb-3">
+          {isEditingText ? (
+            <input
+              type="text"
+              value={customText}
+              onChange={(e) => setCustomText(e.target.value)}
+              onBlur={() => setIsEditingText(false)}
+              onKeyPress={(e) => e.key === 'Enter' && setIsEditingText(false)}
+              className="w-full text-sm bg-white border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
+              autoFocus
+            />
+          ) : (
+            <div 
+              className="flex items-center justify-center gap-2 cursor-pointer text-sm text-gray-700 hover:bg-gray-100 rounded-lg px-3 py-2"
+              onClick={() => setIsEditingText(true)}
+            >
+              <span>{customText}</span>
+              <Edit3 className="w-3 h-3" />
+            </div>
+          )}
+        </div>
+
         {/* Volume control */}
-        <div className="flex items-center gap-2 mt-3">
+        <div className="flex items-center gap-2">
           <Volume2 className="w-4 h-4 text-gray-600" />
           <input
             type="range"

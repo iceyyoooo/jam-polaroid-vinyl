@@ -4,11 +4,21 @@ import { Upload, X } from 'lucide-react';
 
 interface PhotoboothTemplateProps {
   onDelete: () => void;
+  size?: 'small' | 'medium' | 'large';
+  onSizeChange?: (size: 'small' | 'medium' | 'large') => void;
 }
 
-export const PhotoboothTemplate = ({ onDelete }: PhotoboothTemplateProps) => {
+export const PhotoboothTemplate = ({ onDelete, size = 'medium', onSizeChange }: PhotoboothTemplateProps) => {
   const [images, setImages] = useState<string[]>(['', '', '', '']);
   const [isHovered, setIsHovered] = useState(false);
+
+  const sizes = {
+    small: { width: 120, photoHeight: 60, padding: 2, textSize: 'text-xs' },
+    medium: { width: 180, photoHeight: 80, padding: 4, textSize: 'text-sm' },
+    large: { width: 240, photoHeight: 100, padding: 6, textSize: 'text-base' }
+  };
+
+  const currentSize = sizes[size];
 
   const handleImageUpload = (index: number, file: File) => {
     const reader = new FileReader();
@@ -27,18 +37,27 @@ export const PhotoboothTemplate = ({ onDelete }: PhotoboothTemplateProps) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Photo strip background */}
-      <div className="bg-white p-4 rounded-lg shadow-xl border-4 border-gray-200" style={{ width: '180px' }}>
+      <div 
+        className="bg-white rounded-lg shadow-xl border-4 border-gray-200" 
+        style={{ 
+          width: `${currentSize.width}px`,
+          padding: `${currentSize.padding * 4}px`
+        }}
+      >
         {/* Header */}
         <div className="text-center mb-3">
-          <div className="text-xs font-bold text-gray-700 tracking-wider">PHOTOBOOTH</div>
-          <div className="text-xs text-gray-500">❤️ ANNIVERSARY ❤️</div>
+          <div className={`${currentSize.textSize} font-bold text-gray-700 tracking-wider`}>PHOTOBOOTH</div>
+          <div className={`${currentSize.textSize} text-gray-500`}>❤️ ANNIVERSARY ❤️</div>
         </div>
 
         {/* Photo slots */}
         <div className="space-y-2">
           {images.map((image, index) => (
             <div key={index} className="relative">
-              <div className="w-full h-20 bg-gray-100 border-2 border-dashed border-gray-300 rounded flex items-center justify-center overflow-hidden">
+              <div 
+                className="w-full bg-gray-100 border-2 border-dashed border-gray-300 rounded flex items-center justify-center overflow-hidden"
+                style={{ height: `${currentSize.photoHeight}px` }}
+              >
                 {image ? (
                   <img 
                     src={image} 
@@ -69,19 +88,34 @@ export const PhotoboothTemplate = ({ onDelete }: PhotoboothTemplateProps) => {
 
         {/* Footer */}
         <div className="text-center mt-3">
-          <div className="text-xs text-gray-500">Keep this memory forever</div>
+          <div className={`${currentSize.textSize} text-gray-500`}>Keep this memory forever</div>
         </div>
       </div>
 
-      {/* Delete button */}
+      {/* Size controls */}
       {isHovered && (
-        <button
-          onClick={onDelete}
-          className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg z-10"
-          title="Delete"
-        >
-          <X className="w-4 h-4" />
-        </button>
+        <div className="absolute -top-2 -right-2 flex flex-col gap-1">
+          <div className="flex gap-1">
+            {(['small', 'medium', 'large'] as const).map(sizeOption => (
+              <button
+                key={sizeOption}
+                onClick={() => onSizeChange?.(sizeOption)}
+                className={`w-4 h-4 rounded border-2 ${
+                  size === sizeOption ? 'bg-blue-500 border-blue-600' : 'bg-white border-gray-300'
+                } hover:scale-110 transition-transform`}
+                title={`${sizeOption} size`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={onDelete}
+            className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg z-10"
+            title="Delete"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       )}
     </div>
   );
