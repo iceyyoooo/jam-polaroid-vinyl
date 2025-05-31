@@ -3,15 +3,17 @@ import React from 'react';
 import { Plus } from 'lucide-react';
 
 interface ToolbarProps {
-  selectedTool: 'polaroid' | 'vinyl' | 'letter' | null;
-  onToolSelect: (tool: 'polaroid' | 'vinyl' | 'letter' | null) => void;
+  selectedTool: 'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers' | null;
+  onToolSelect: (tool: 'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers' | null) => void;
 }
 
 export const Toolbar = ({ selectedTool, onToolSelect }: ToolbarProps) => {
   const tools = [
     { id: 'polaroid', label: 'Polaroid', icon: '📷', description: 'Add photo frame' },
+    { id: 'photobooth', label: 'Photobooth', icon: '📸', description: 'Add 4-photo strip' },
     { id: 'vinyl', label: 'Vinyl', icon: '🎵', description: 'Add music player' },
-    { id: 'letter', label: 'Letter', icon: '💌', description: 'Add letter template' }
+    { id: 'letter', label: 'Letter', icon: '💌', description: 'Add letter template' },
+    { id: 'stickers', label: 'Stickers', icon: '✨', description: 'Add sticker collection' }
   ] as const;
 
   return (

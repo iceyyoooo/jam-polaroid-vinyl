@@ -3,12 +3,15 @@ import React, { useState, useRef, useCallback } from 'react';
 import { PolaroidFrame } from './PolaroidFrame';
 import { VinylPlayer } from './VinylPlayer';
 import { LetterTemplate } from './LetterTemplate';
+import { PhotoboothTemplate } from './PhotoboothTemplate';
+import { StickerCollection } from './StickerCollection';
+import { Sticker } from './Sticker';
 import { Toolbar } from './Toolbar';
 import { Plus } from 'lucide-react';
 
 export interface CanvasItem {
   id: string;
-  type: 'polaroid' | 'vinyl' | 'letter';
+  type: 'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers' | 'sticker';
   x: number;
   y: number;
   data?: any;
@@ -16,12 +19,12 @@ export interface CanvasItem {
 
 export const AnniversaryCanvas = () => {
   const [items, setItems] = useState<CanvasItem[]>([]);
-  const [selectedTool, setSelectedTool] = useState<'polaroid' | 'vinyl' | 'letter' | null>(null);
+  const [selectedTool, setSelectedTool] = useState<'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers' | null>(null);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const addItem = useCallback((type: 'polaroid' | 'vinyl' | 'letter', x: number, y: number) => {
+  const addItem = useCallback((type: 'polaroid' | 'vinyl' | 'letter' | 'photobooth' | 'stickers', x: number, y: number) => {
     const newItem: CanvasItem = {
       id: `${type}-${Date.now()}`,
       type,
@@ -30,6 +33,17 @@ export const AnniversaryCanvas = () => {
       data: type === 'letter' ? { template: 'vintage', content: '' } : {}
     };
     setItems(prev => [...prev, newItem]);
+  }, []);
+
+  const addSticker = useCallback((stickerContent: string, x: number, y: number) => {
+    const newSticker: CanvasItem = {
+      id: `sticker-${Date.now()}`,
+      type: 'sticker',
+      x,
+      y,
+      data: { content: stickerContent }
+    };
+    setItems(prev => [...prev, newSticker]);
   }, []);
 
   const handleCanvasClick = useCallback((e: React.MouseEvent) => {
@@ -44,6 +58,17 @@ export const AnniversaryCanvas = () => {
     addItem(selectedTool, x, y);
     setSelectedTool(null);
   }, [selectedTool, addItem]);
+
+  const handleStickerSelect = useCallback((stickerContent: string) => {
+    // Add sticker at a random position near the sticker collection
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const x = Math.random() * (rect.width - 100) + 50;
+    const y = Math.random() * (rect.height - 100) + 50;
+    
+    addSticker(stickerContent, x, y);
+  }, [addSticker]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent, itemId: string) => {
     e.stopPropagation();
@@ -128,6 +153,18 @@ export const AnniversaryCanvas = () => {
                   />
                 </div>
               );
+            case 'photobooth':
+              return (
+                <div 
+                  key={item.id} 
+                  style={style}
+                  onMouseDown={(e) => handleMouseDown(e, item.id)}
+                >
+                  <PhotoboothTemplate 
+                    onDelete={() => deleteItem(item.id)}
+                  />
+                </div>
+              );
             case 'vinyl':
               return (
                 <div 
@@ -151,6 +188,32 @@ export const AnniversaryCanvas = () => {
                     template={item.data?.template || 'vintage'}
                     content={item.data?.content || ''}
                     onContentChange={(content) => updateItemData(item.id, { content })}
+                    onDelete={() => deleteItem(item.id)}
+                  />
+                </div>
+              );
+            case 'stickers':
+              return (
+                <div 
+                  key={item.id} 
+                  style={style}
+                  onMouseDown={(e) => handleMouseDown(e, item.id)}
+                >
+                  <StickerCollection 
+                    onDelete={() => deleteItem(item.id)}
+                    onStickerSelect={handleStickerSelect}
+                  />
+                </div>
+              );
+            case 'sticker':
+              return (
+                <div 
+                  key={item.id} 
+                  style={style}
+                  onMouseDown={(e) => handleMouseDown(e, item.id)}
+                >
+                  <Sticker 
+                    content={item.data?.content || '❤️'}
                     onDelete={() => deleteItem(item.id)}
                   />
                 </div>
